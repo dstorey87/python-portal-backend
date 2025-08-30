@@ -1,276 +1,287 @@
 # Python Portal Backend API
 
-## 🎯 Purpose
+## Production-Grade Express.js Microservice
 
-The `@python-portal/backend` package provides the main Express.js API server for the Python Portal learning platform. This microservice serves as the central API gateway, orchestrating communication between the frontend, exercise service, and execution service.
+This is the backend API microservice for the Python Learning Portal, providing exercise management, user authentication, progress tracking, and integration with the Python executor service.
 
 ## 🏗️ Architecture
 
-### Core Responsibilities
-- **API Gateway**: Central entry point for all client requests
-- **Authentication**: User session management and security
-- **Data Aggregation**: Combining data from multiple services
-- **Request Routing**: Intelligent routing to appropriate microservices
-- **Response Transformation**: Standardizing API responses
-- **Rate Limiting**: Protecting services from abuse
-- **Monitoring**: Health checks and performance metrics
-
-### Service Integration
-```mermaid
-graph TB
-    Frontend[React Frontend] --> Backend[Backend API]
-    Backend --> Exercises[Exercise Service]
-    Backend --> Executor[Python Executor]
-    Backend --> Cache[Redis Cache]
-    Backend --> Auth[Authentication]
+```
+@python-portal/backend/
+├── src/
+│   ├── controllers/          # Request handlers
+│   ├── middleware/           # Custom middleware
+│   ├── routes/              # API route definitions
+│   ├── services/            # Business logic
+│   ├── models/              # Data models
+│   ├── utils/               # Utility functions
+│   ├── config/              # Configuration
+│   └── index.ts             # Application entry point
+├── database/
+│   ├── migrations/          # Database migrations
+│   └── seeds/               # Database seed data
+├── scripts/
+│   ├── migrate.ts           # Migration runner
+│   └── seed.ts              # Seed data runner
+└── tests/
+    ├── unit/                # Unit tests
+    ├── integration/         # Integration tests
+    └── fixtures/            # Test fixtures
 ```
 
-## 🚀 Features
+## 🚀 Quick Start
 
-### Production-Ready API
-- **OpenAPI 3.0 Specification**: Complete API documentation
-- **RESTful Endpoints**: Standard HTTP methods and status codes
-- **Request Validation**: Comprehensive input validation with Joi
-- **Error Handling**: Structured error responses with correlation IDs
-- **CORS Configuration**: Secure cross-origin resource sharing
-- **Security Headers**: Helmet.js security middleware
-- **Rate Limiting**: Configurable rate limiting per endpoint
-- **Response Compression**: Gzip compression for optimal performance
+```bash
+# Install dependencies
+npm install
 
-### Microservice Communication
-- **Service Discovery**: Dynamic service endpoint resolution
-- **Circuit Breakers**: Fault tolerance for external service calls
-- **Request Retry Logic**: Automatic retry with exponential backoff
-- **Health Check Aggregation**: Monitoring all dependent services
-- **Load Balancing**: Intelligent request distribution
+# Development mode
+npm run dev
 
-### Caching Strategy
-- **Redis Integration**: Distributed caching for scalability
-- **Cache Invalidation**: Smart cache management
-- **Session Storage**: User session persistence
-- **Rate Limit Storage**: Distributed rate limiting
+# Build for production
+npm run build
 
-### Authentication & Authorization
-- **JWT Tokens**: Secure stateless authentication
-- **Guest Mode**: Anonymous user support
-- **Role-Based Access**: Granular permission system
-- **Session Management**: Secure session handling
-
-## 📁 Project Structure
-
+# Run production server
+npm run serve
 ```
-src/
-├── controllers/         # Request handlers
-│   ├── auth.controller.ts
-│   ├── exercises.controller.ts
-│   ├── execution.controller.ts
-│   └── health.controller.ts
-├── middleware/          # Express middleware
-│   ├── auth.middleware.ts
-│   ├── validation.middleware.ts
-│   ├── error.middleware.ts
-│   └── cors.middleware.ts
-├── routes/             # Route definitions
-│   ├── api.routes.ts
-│   ├── auth.routes.ts
-│   ├── exercises.routes.ts
-│   └── health.routes.ts
-├── services/           # Business logic
-│   ├── exercise.service.ts
-│   ├── execution.service.ts
-│   ├── auth.service.ts
-│   └── cache.service.ts
-├── utils/              # Helper functions
-│   ├── logger.ts
-│   ├── validator.ts
-│   └── response.ts
-├── config/             # Configuration
-│   ├── database.ts
-│   ├── services.ts
-│   └── swagger.ts
-└── __tests__/          # Test files
-    ├── controllers/
-    ├── middleware/
-    ├── routes/
-    └── services/
+
+## 📡 API Endpoints
+
+### Authentication
+```
+POST   /api/auth/login       # User login
+POST   /api/auth/register    # User registration
+POST   /api/auth/refresh     # Token refresh
+POST   /api/auth/logout      # User logout
+```
+
+### Exercises
+```
+GET    /api/exercises        # List all exercises
+GET    /api/exercises/:id    # Get specific exercise
+POST   /api/exercises/run    # Execute Python code
+POST   /api/exercises/test   # Run exercise tests
+```
+
+### User Progress
+```
+GET    /api/progress         # Get user progress
+POST   /api/progress         # Update progress
+GET    /api/progress/stats   # Progress statistics
+```
+
+### Health & Monitoring
+```
+GET    /health               # Health check
+GET    /metrics              # Application metrics
 ```
 
 ## 🔧 Configuration
 
 ### Environment Variables
+
 ```bash
 # Server Configuration
+PORT=3000
 NODE_ENV=production
-PORT=3001
-API_VERSION=v1
+CORS_ORIGIN=https://your-frontend-url.com
 
-# Service URLs
-EXERCISES_SERVICE_URL=http://exercises:3003
-EXECUTOR_SERVICE_URL=http://executor:3002
-FRONTEND_URL=https://python-portal.com
+# Database
+DATABASE_URL=./database/portal.db
 
-# Security
-JWT_SECRET=your-secret-key
+# Authentication
+JWT_SECRET=your-super-secret-jwt-key
 JWT_EXPIRES_IN=24h
-CORS_ORIGIN=https://python-portal.com
+BCRYPT_ROUNDS=12
 
-# Redis Configuration
-REDIS_URL=redis://localhost:6379
-REDIS_PASSWORD=optional-password
+# External Services
+EXECUTOR_SERVICE_URL=http://executor:8000
+EXECUTOR_TIMEOUT=30000
 
 # Rate Limiting
-RATE_LIMIT_WINDOW=900000  # 15 minutes
-RATE_LIMIT_MAX=1000       # requests per window
-RATE_LIMIT_AUTH_MAX=5000  # higher limit for authenticated users
+RATE_LIMIT_WINDOW_MS=900000  # 15 minutes
+RATE_LIMIT_MAX_REQUESTS=100
 
-# Monitoring
-EEALTH_CHECK_TIMEOUT=5000
-METRICS_ENABLED=true
+# Logging
 LOG_LEVEL=info
+LOG_FORMAT=combined
 ```
 
-### Docker Configuration
-The service includes production-ready Docker configuration:
-- Multi-stage build for optimal image size
-- Non-root user for security
-- Health checks for container orchestration
-- Resource limits and monitoring
+## 🐳 Docker Deployment
 
-## 📚 API Documentation
-
-### OpenAPI Specification
-Complete API documentation is auto-generated from JSDoc comments:
 ```bash
-npm run docs          # Generate OpenAPI spec
-npm run docs:serve    # Serve interactive documentation
+# Build image
+docker build -t python-portal-backend .
+
+# Run container
+docker run -p 3000:3000 \
+  -e NODE_ENV=production \
+  -e JWT_SECRET=your-secret \
+  python-portal-backend
 ```
 
-### Key Endpoints
+## 🗄️ Database
+
+Using SQLite for simplicity and portability:
+
+```bash
+# Run migrations
+npm run migrate
+
+# Seed database
+npm run seed
 ```
-GET  /api/v1/health              # Health check
-POST /api/v1/auth/login          # User authentication
-GET  /api/v1/exercises           # List exercises
-GET  /api/v1/exercises/:id       # Get exercise details
-POST /api/v1/execute             # Execute Python code
-GET  /api/v1/progress            # User progress
-POST /api/v1/progress            # Save progress
+
+### Schema Overview
+
+```sql
+-- Users table
+CREATE TABLE users (
+  id TEXT PRIMARY KEY,
+  email TEXT UNIQUE NOT NULL,
+  username TEXT UNIQUE NOT NULL,
+  password_hash TEXT NOT NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- User progress table
+CREATE TABLE user_progress (
+  id TEXT PRIMARY KEY,
+  user_id TEXT NOT NULL,
+  exercise_id TEXT NOT NULL,
+  status TEXT NOT NULL, -- 'not_started', 'in_progress', 'completed'
+  completion_time INTEGER,
+  attempts INTEGER DEFAULT 0,
+  last_code TEXT,
+  FOREIGN KEY (user_id) REFERENCES users (id)
+);
+
+-- Exercise submissions table
+CREATE TABLE exercise_submissions (
+  id TEXT PRIMARY KEY,
+  user_id TEXT NOT NULL,
+  exercise_id TEXT NOT NULL,
+  code TEXT NOT NULL,
+  test_results TEXT, -- JSON
+  success BOOLEAN NOT NULL,
+  submitted_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users (id)
+);
 ```
 
 ## 🧪 Testing
 
-### Comprehensive Test Suite
-- **Unit Tests**: Individual function testing
-- **Integration Tests**: API endpoint testing
-- **Service Tests**: External service integration
-- **Security Tests**: Authentication and authorization
-- **Performance Tests**: Load and stress testing
-
-### Test Coverage
-Maintains >90% code coverage across:
-- Controllers and routes
-- Middleware functions
-- Service integrations
-- Error handling paths
-
 ```bash
-npm test              # Run all tests
-npm run test:watch    # Watch mode
-npm run test:coverage # Coverage report
+# Run all tests
+npm test
+
+# Unit tests only
+npm run test:unit
+
+# Integration tests
+npm run test:integration
+
+# Coverage report
+npm run test:coverage
 ```
 
-## 🔒 Security
+## 📊 Monitoring & Observability
 
-### Security Features
-- **Helmet.js**: Security headers
-- **CORS Protection**: Configurable cross-origin policies
-- **Rate Limiting**: DDoS protection
-- **Input Validation**: SQL injection prevention
-- **JWT Security**: Token-based authentication
-- **HTTPS Enforcement**: TLS/SSL requirements
-- **Security Headers**: CSP, HSTS, X-Frame-Options
+### Health Checks
+- **Liveness**: `/health` - Basic server health
+- **Readiness**: `/health/ready` - Database connectivity
+- **Dependencies**: `/health/deps` - External service status
 
-### Security Best Practices
-- No hardcoded secrets
-- Environment-based configuration
-- Regular dependency updates
-- Security audit logging
-- Principle of least privilege
+### Metrics
+- Request/response metrics
+- Database query performance
+- Python execution statistics
+- User activity tracking
 
-## 🚀 Deployment
+## 🔐 Security
 
-### Production Deployment
-```bash
-# Build for production
-npm run build
+### Authentication
+- JWT-based authentication
+- Secure password hashing (bcrypt)
+- Token refresh mechanism
+- Session management
 
-# Start production server
-npm run start:prod
+### API Security
+- Helmet.js for security headers
+- CORS configuration
+- Rate limiting
+- Input validation (Joi)
+- SQL injection prevention
 
-# Docker deployment
-docker build -t python-portal-backend .
-docker run -p 3001:3001 --env-file .env python-portal-backend
-```
+### Code Execution Security
+- Delegated to isolated executor service
+- Request sanitization
+- Timeout enforcement
+- Resource limitations
 
-### Health Monitoring
-The service provides comprehensive health endpoints:
-- `/health` - Overall service health
-- `/health/ready` - Readiness probe
-- `/health/live` - Liveness probe
-- `/metrics` - Performance metrics
+## 🚀 Performance
 
-## 📊 Performance
+### Optimizations
+- Response compression
+- Connection pooling
+- Query optimization
+- Caching strategies
+- Async processing
 
-### Optimization Features
-- **Response Compression**: Gzip compression
-- **Caching Strategy**: Redis-based caching
-- **Connection Pooling**: Efficient database connections
-- **Request Deduplication**: Prevents duplicate requests
-- **Lazy Loading**: On-demand resource loading
+### Scaling
+- Stateless design
+- Horizontal scaling ready
+- Load balancer compatible
+- Container orchestration support
 
-### Monitoring
-- **Request Logging**: Morgan HTTP request logger
-- **Error Tracking**: Structured error logging
-- **Performance Metrics**: Response time monitoring
-- **Health Checks**: Service dependency monitoring
-
-## 🔧 Development
-
-### Development Setup
-```bash
-# Install dependencies
-npm install
-
-# Start development server
-npm run dev
-
-# Run linting
-npm run lint
-
-# Type checking
-npm run type-check
-```
+## 🛠️ Development
 
 ### Code Quality
-- **TypeScript Strict Mode**: Maximum type safety
-- **ESLint Airbnb Config**: Industry-standard linting
-- **Prettier Integration**: Consistent code formatting
-- **Pre-commit Hooks**: Automated quality checks
+- TypeScript strict mode
+- ESLint + Prettier
+- Comprehensive testing
+- Code coverage tracking
+- Pre-commit hooks
 
-## 🤝 Integration
+### API Documentation
+- OpenAPI/Swagger specification
+- Interactive documentation
+- Request/response examples
+- Error code documentation
 
-This package integrates seamlessly with other Python Portal services:
-- **@python-portal/types**: Shared TypeScript definitions
-- **@python-portal/exercises**: Exercise content service
-- **@python-portal/executor**: Python execution service
-- **@python-portal/frontend**: React application
+## 📋 API Response Format
+
+```typescript
+// Success Response
+{
+  "success": true,
+  "data": { /* response data */ },
+  "message": "Operation completed successfully"
+}
+
+// Error Response
+{
+  "success": false,
+  "error": {
+    "code": "ERROR_CODE",
+    "message": "Human readable message",
+    "details": { /* additional context */ }
+  }
+}
+```
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create feature branch
+3. Write comprehensive tests
+4. Follow coding standards
+5. Submit pull request
 
 ## 📝 License
 
-MIT License - see LICENSE file for details.
+MIT - see [LICENSE](LICENSE) file
 
-## 🆘 Support
+---
 
-For issues and support:
-- GitHub Issues: [python-portal-backend/issues]
-- Documentation: [API Documentation]
-- Team Contact: Python Portal Development Team
+**Production Ready**: This microservice is designed for production deployment with comprehensive monitoring, security, and scalability features.
